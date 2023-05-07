@@ -1,8 +1,3 @@
-# Archived
-This repository was archived on 30 April 2022 (see https://github.com/unlobito/ha-hildebrandglow/discussions/55 for details).
-
-[HandyHat/ha-hildebrandglow-dcc](https://github.com/HandyHat/ha-hildebrandglow-dcc) is maintained as a fork for DCC users.
-
 # ha-hildebrandglow
 
 HomeAssistant integration for the [Hildebrand Glow](https://www.hildebrand.co.uk/our-products/) smart meter HAN for UK SMETS meters.
@@ -15,7 +10,7 @@ This integration will currently emit one sensor for the current usage of each de
 ### Automated installation through HACS
 You can install this component through [HACS](https://hacs.xyz/) and receive automatic updates.
 
-After installing HACS, visit the HACS _Settings_ pane and add `https://github.com/unlobito/ha-hildebrandglow` as an `Integration`. You'll then be able to install it through the _Integrations_ pane.
+After installing HACS, visit the HACS _Settings_ pane and add `https://github.com/pmaciocia/ha-hildebrandglow` as an `Integration`. You'll then be able to install it through the _Integrations_ pane.
 
 ### Manual installation
 Copy the `custom_components/hildebrandglow/` directory and all of its files to your ` config/custom_components` directory. You'll then need to restart Home Assistant for it to detect the new integration.
@@ -40,7 +35,7 @@ Usage: make [command]
 
 ### Code Style
 This project makes use of black, flake8, isort, and mypy to automatically enforce
-a consistent code style across the codebase. 
+a consistent code style across the codebase.
 
 `make format` should be run before committing to automatically format the
 codebase.
