@@ -45,11 +45,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     hass.data.setdefault(DOMAIN, {})
     hass.data[DOMAIN][entry.entry_id] = {GLOW_SESSION: glow}
 
-    hass.async_create_task(
-        hass.config_entries.async_forward_entry_setup(
-            entry, PLATFORMS[0]
-        )
-    )
+    await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
     if not entry.update_listeners:
         entry.add_update_listener(async_update_options)
