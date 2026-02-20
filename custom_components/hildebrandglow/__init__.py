@@ -1,10 +1,11 @@
 """The Hildebrand Glow integration."""
+
 import asyncio
 from typing import Any, Dict
 
 import async_timeout
 import voluptuous as vol
-from homeassistant.components.sensor import DOMAIN as SENSOR_DOMAIN
+from homeassistant.components.sensor.const import DOMAIN as SENSOR_DOMAIN
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import (
@@ -85,7 +86,7 @@ async def async_disconnect_or_timeout(hass: HomeAssistant, glow: Glow) -> bool:
     """Disconnect from Glow."""
     LOGGER.debug("Disconnect from Glow")
     async with async_timeout.timeout(3):
-        await hass.async_add_executor_job(glow.disconnect)
+        _ = await hass.async_add_executor_job(glow.disconnect)
     return True
 
 

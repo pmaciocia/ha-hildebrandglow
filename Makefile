@@ -5,7 +5,7 @@ help : Makefile
 
 ##  install-dev    Install dependencies required for development
 install-dev:
-	pip install -r requirements-dev.txt
+	uv sync --only-dev
 
 ##  format         Run linters on the codebase and attempt to fix any issues found
 format:

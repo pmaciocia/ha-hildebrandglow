@@ -1,0 +1,22 @@
+[project]
+name = "ha-hildebrandglow"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = [
+    "async-timeout>=5.0.1",
+    "homeassistant>=2024.12.5",
+    "paho-mqtt>=2.1.0",
+    "requests>=2.32.3",
+    "types-requests>=2.31.0.6",
+    "voluptuous>=0.15.2",
+]
+
+[dependency-groups]
+dev = [
+    "black>=26.1.0",
+    "flake8>=7.3.0",
+    "isort>=8.0.0",
+    "mypy>=1.19.1",
+    "pycodestyle>=2.14.0",
+    "pyflakes>=3.4.0",
+]

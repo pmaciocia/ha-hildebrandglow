@@ -1,4 +1,5 @@
 """Helper classes for Zigbee Smart Energy Profile data."""
+
 import json
 import struct
 from enum import Enum

@@ -1,4 +1,5 @@
 """Constants for the Hildebrand Glow integration."""
+
 import logging
 from typing import Final
 

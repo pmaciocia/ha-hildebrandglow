@@ -1,22 +1,22 @@
 """Platform for sensor integration."""
+
+from functools import cached_property
 from typing import Any, Callable
 
-from homeassistant.components.sensor import DOMAIN as SENSOR_DOMAIN
 from homeassistant.components.sensor import (
-    SensorStateClass,
-    SensorDeviceClass,
     SensorEntity,
     SensorEntityDescription,
 )
+from homeassistant.components.sensor.const import DOMAIN as SENSOR_DOMAIN
+from homeassistant.components.sensor.const import SensorDeviceClass, SensorStateClass
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
-    UnitOfVolume,
-    UnitOfPower,
     UnitOfEnergy,
+    UnitOfPower,
+    UnitOfVolume,
 )
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.device_registry import DeviceEntryType
-from homeassistant.helpers.entity import DeviceInfo
+from homeassistant.helpers.device_registry import DeviceEntryType, DeviceInfo
 from homeassistant.helpers.typing import StateType
 
 from .const import DOMAIN, GLOW_SESSION
@@ -63,8 +63,6 @@ async def async_setup_entry(
 class GlowSensorEntity(SensorEntity):
     """Sensor object for the Glowmarkt resource's current consumption."""
 
-    should_poll = False
-
     glow: Glow
 
     def __init__(
@@ -77,9 +75,9 @@ class GlowSensorEntity(SensorEntity):
         super().__init__()
         self.glow = glow
 
-        self.entity_id = f"{SENSOR_DOMAIN}.glow{glow.hardwareId}_{description.key}"
         self.entity_description = description
         self._attr_unique_id = f"glow{glow.hardwareId}_{description.key}"
+        self.should_poll = False
 
         self._attr_device_info = DeviceInfo(
             entry_type=DeviceEntryType.SERVICE,
@@ -96,12 +94,12 @@ class GlowSensorEntity(SensorEntity):
         """Receive callback for incoming MQTT payloads."""
         self.hass.add_job(self.async_write_ha_state)
 
-    @property
+    @cached_property
     def available(self) -> bool:
         """Return the sensor's availability."""
         return getattr(self.glow.data, self.entity_description.key) is not None
 
-    @property
+    @cached_property
     def native_value(self) -> StateType:
         """Return the state of the sensor."""
         value = getattr(self.glow.data, self.entity_description.key)

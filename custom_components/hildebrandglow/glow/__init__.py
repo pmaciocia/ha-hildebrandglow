@@ -1,4 +1,5 @@
 """Classes for interacting with the Glowmarkt API."""
+
 from __future__ import annotations
 
 from pprint import pprint
@@ -7,6 +8,9 @@ from typing import Any, Callable, Dict, List
 import paho.mqtt.client as mqtt
 import requests
 from homeassistant import exceptions
+from paho.mqtt.client import ConnectFlags, MQTTMessage
+from paho.mqtt.enums import MQTTErrorCode
+from paho.mqtt.reasoncodes import ReasonCode
 
 from .mqttpayload import MQTTPayload
 
@@ -111,12 +115,17 @@ class Glow:
 
         self.broker.loop_start()
 
-    async def disconnect(self) -> None:
+    async def disconnect(self) -> MQTTErrorCode:
         """Disconnect the internal MQTT client."""
         return self.broker.loop_stop()
 
     def _cb_on_connect(
-        self, client: mqtt, userdata: Any, flags: Dict[str, Any], rc: int
+        self,
+        client: Any,
+        userdata: Any,
+        flags: ConnectFlags,
+        rc: ReasonCode,
+        properties: Any,
     ) -> None:
         """Receive a CONNACK message from the server."""
         client.subscribe(
@@ -125,15 +134,13 @@ class Glow:
 
         self.broker_active = True
 
-    def _cb_on_disconnect(self, client: mqtt, userdata: Any, rc: int) -> None:
+    def _cb_on_disconnect(self, client: Any, userdata: Any, rc: int) -> None:
         """Receive notice the MQTT connection has disconnected."""
         self.broker_active = False
 
-    def _cb_on_message(
-        self, client: mqtt, userdata: Any, msg: mqtt.MQTTMessage
-    ) -> None:
+    def _cb_on_message(self, client: Any, userdata: Any, msg: MQTTMessage) -> None:
         """Receive a PUBLISH message from the server."""
-        payload = MQTTPayload(msg.payload)
+        payload = MQTTPayload(str(msg.payload))
         self.data = SmartMeter.from_mqtt_payload(payload)
 
         for callback in self.callbacks:

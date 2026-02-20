@@ -1,11 +1,12 @@
 """Config flow for Hildebrand Glow integration."""
+
 from __future__ import annotations
 
 import logging
 from typing import Any, Dict
 
 import voluptuous as vol
-from homeassistant import config_entries, core, data_entry_flow
+from homeassistant import config_entries, core
 
 from .const import APP_ID, DOMAIN  # pylint:disable=unused-import
 from .glow import CannotConnect, Glow, InvalidAuth
@@ -45,7 +46,7 @@ class DomainConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
     async def async_step_user(
         self, user_input: dict[str, Any] | None = None
-    ) -> data_entry_flow.FlowResult:
+    ) -> config_entries.ConfigFlowResult:
         """Handle the initial step."""
         errors = {}
         if user_input is not None:
