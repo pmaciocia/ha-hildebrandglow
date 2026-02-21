@@ -9,7 +9,7 @@ import paho.mqtt.client as mqtt
 import requests
 from homeassistant import exceptions
 from paho.mqtt.client import ConnectFlags, MQTTMessage
-from paho.mqtt.enums import MQTTErrorCode
+from paho.mqtt.enums import MQTTErrorCode, CallbackAPIVersion
 from paho.mqtt.reasoncodes import ReasonCode
 
 from .mqttpayload import MQTTPayload
@@ -42,7 +42,7 @@ class Glow:
         self.username = username
         self.password = password
 
-        self.broker = mqtt.Client()
+        self.broker = mqtt.Client(callback_api_version=CallbackAPIVersion.VERSION2)
         self.broker.username_pw_set(username=self.username, password=self.password)
         self.broker.on_connect = self._cb_on_connect
         self.broker.on_message = self._cb_on_message
