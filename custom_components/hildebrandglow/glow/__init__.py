@@ -16,6 +16,9 @@ from .mqttpayload import MQTTPayload
 
 from .glowdata import SmartMeter  # isort:skip
 
+import logging
+
+LOGGER = logging.getLogger(__package__)
 
 class Glow:
     """Bindings for the Hildebrand Glow Platform API."""
@@ -140,7 +143,8 @@ class Glow:
 
     def _cb_on_message(self, client: Any, userdata: Any, msg: MQTTMessage) -> None:
         """Receive a PUBLISH message from the server."""
-        payload = MQTTPayload(str(msg.payload))
+        LOGGER.info("got mqtt msg - %s", msg.payload)
+        payload = MQTTPayload(msg.payload)
         self.data = SmartMeter.from_mqtt_payload(payload)
 
         for callback in self.callbacks:

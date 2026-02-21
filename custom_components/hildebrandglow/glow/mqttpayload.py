@@ -246,7 +246,7 @@ class MQTTPayload:
     gas: Optional[Meter]
     """Data interpreted from a gas meter."""
 
-    def __init__(self, input: str):
+    def __init__(self, input: bytes):
         """Create internal Meter instances based off the unprocessed payload."""
         payload: Dict[str, Any] = json.loads(input)
         self.electricity = (
