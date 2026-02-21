@@ -10,5 +10,6 @@
   "dependencies": [],
   "codeowners": ["@pmaciocia"],
   "iot_class": "cloud_polling",
-  "version": "0.1.7-beta1"
+  "version": "0.1.7-beta2",
+  "loggers": ["custom_component.hildebrandglow"]
 }
