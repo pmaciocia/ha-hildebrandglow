@@ -1,10 +1,10 @@
 [project]
 name = "ha-hildebrandglow"
 version = "0.1.0"
-requires-python = ">=3.12"
+requires-python = ">=3.13.2"
 dependencies = [
     "async-timeout>=5.0.1",
-    "homeassistant>=2024.12.5",
+    "homeassistant>=2026.2.3",
     "paho-mqtt>=2.1.0",
     "requests>=2.32.3",
     "types-requests>=2.31.0.6",

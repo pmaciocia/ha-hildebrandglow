@@ -59,17 +59,20 @@ class Glow:
         headers = {"applicationId": self.app_id}
 
         try:
-            response = requests.post(url, json=auth, headers=headers)
-        except requests.Timeout:
+            response = requests.post(url, json=auth, headers=headers, timeout=10)
+        except requests.Timeout as e:
+            LOGGER.error("failed to authenticate - %s", e)
             raise CannotConnect
 
+        LOGGER.info("connected to glow")
         data = response.json()
 
         if data["valid"]:
+            LOGGER.info("got glow token")
             self.token = data["token"]
             return data
         else:
-            pprint(data)
+            LOGGER.error("failed to authenticate - %s", data)
             raise InvalidAuth
 
     def retrieve_devices(self) -> List[Dict[str, Any]]:
@@ -115,12 +118,11 @@ class Glow:
     def connect_mqtt(self) -> None:
         """Connect the internal MQTT client to the discovered CAD."""
         self.broker.connect(self.HILDEBRAND_MQTT_HOST)
-
         self.broker.loop_start()
 
-    async def disconnect(self) -> MQTTErrorCode:
+    async def disconnect(self) -> None:
         """Disconnect the internal MQTT client."""
-        return self.broker.loop_stop()
+        self.broker.loop_stop()
 
     def _cb_on_connect(
         self,
