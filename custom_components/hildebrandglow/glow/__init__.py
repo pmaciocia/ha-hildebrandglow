@@ -56,26 +56,33 @@ class Glow:
         """Attempt to authenticate with Glowmarkt."""
         url = f"{self.BASE_URL}/auth"
         auth = {"username": self.username, "password": self.password}
-        headers = {"applicationId": self.app_id}
+        headers = {
+            "applicationId": self.app_id,
+            "Accept": "application/json, */*",
+            "Content-Type": "application/json",
+        }
 
         try:
-            response = requests.post(url, json=auth, headers=headers)
-        except requests.Timeout:
+            response = requests.post(url, json=auth, headers=headers, timeout=10)
+        except requests.Timeout as e:
+            LOGGER.error("failed to authenticate - %s", e)
             raise CannotConnect
 
+        LOGGER.info("connected to glow")
         data = response.json()
 
         if data["valid"]:
+            LOGGER.info("got glow token")
             self.token = data["token"]
             return data
         else:
-            pprint(data)
+            LOGGER.error("failed to authenticate - %s", data)
             raise InvalidAuth
 
     def retrieve_devices(self) -> List[Dict[str, Any]]:
         """Retrieve the Zigbee devices known to Glowmarkt for the authenticated user."""
         url = f"{self.BASE_URL}/device"
-        headers = {"applicationId": self.app_id, "token": self.token}
+        headers = {"applicationId": self.app_id, "token": self.token, "Accept": "application/json"}
 
         try:
             response = requests.get(url, headers=headers)
@@ -115,12 +122,11 @@ class Glow:
     def connect_mqtt(self) -> None:
         """Connect the internal MQTT client to the discovered CAD."""
         self.broker.connect(self.HILDEBRAND_MQTT_HOST)
-
         self.broker.loop_start()
 
-    async def disconnect(self) -> MQTTErrorCode:
+    async def disconnect(self) -> None:
         """Disconnect the internal MQTT client."""
-        return self.broker.loop_stop()
+        self.broker.loop_stop()
 
     def _cb_on_connect(
         self,
@@ -143,7 +149,7 @@ class Glow:
 
     def _cb_on_message(self, client: Any, userdata: Any, msg: MQTTMessage) -> None:
         """Receive a PUBLISH message from the server."""
-        LOGGER.info("got mqtt msg - %s", msg.payload)
+        LOGGER.debug("got mqtt msg - %s", msg.payload)
         payload = MQTTPayload(msg.payload)
         self.data = SmartMeter.from_mqtt_payload(payload)
 
@@ -153,7 +159,7 @@ class Glow:
     def retrieve_resources(self) -> List[Dict[str, Any]]:
         """Retrieve the resources known to Glowmarkt for the authenticated user."""
         url = f"{self.BASE_URL}/resource"
-        headers = {"applicationId": self.app_id, "token": self.token}
+        headers = {"applicationId": self.app_id, "token": self.token, "Accept": "application/json"}
 
         try:
             response = requests.get(url, headers=headers)
@@ -169,7 +175,7 @@ class Glow:
     def current_usage(self, resource: Dict[str, Any]) -> Dict[str, Any]:
         """Retrieve the current usage for a specified resource."""
         url = f"{self.BASE_URL}/resource/{resource}/current"
-        headers = {"applicationId": self.app_id, "token": self.token}
+        headers = {"applicationId": self.app_id, "token": self.token, "Accept": "application/json"}
 
         try:
             response = requests.get(url, headers=headers)
