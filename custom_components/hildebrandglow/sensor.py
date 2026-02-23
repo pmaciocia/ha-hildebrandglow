@@ -94,12 +94,12 @@ class GlowSensorEntity(SensorEntity):
         """Receive callback for incoming MQTT payloads."""
         self.hass.add_job(self.async_write_ha_state)
 
-    @cached_property
+    @property
     def available(self) -> bool:
         """Return the sensor's availability."""
         return getattr(self.glow.data, self.entity_description.key) is not None
 
-    @cached_property
+    @property
     def native_value(self) -> StateType:
         """Return the state of the sensor."""
         value = getattr(self.glow.data, self.entity_description.key)
