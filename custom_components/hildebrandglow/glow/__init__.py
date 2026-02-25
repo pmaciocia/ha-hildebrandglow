@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 from pprint import pprint
+import time
+import sys
 from typing import Any, Callable, Dict, List
 
 import paho.mqtt.client as mqtt
@@ -39,11 +41,14 @@ class Glow:
 
     callbacks: List[Callable] = []
 
-    def __init__(self, app_id: str, username: str, password: str):
+    def __init__(self, app_id: str, username: str, password: str, token: str = "", token_exp: int = sys.maxsize) -> None:
         """Create an authenticated Glow object."""
         self.app_id = app_id
         self.username = username
         self.password = password
+
+        self.token = token
+        self.token_exp = token_exp
 
         self.broker = mqtt.Client(callback_api_version=CallbackAPIVersion.VERSION2)
         self.broker.username_pw_set(username=self.username, password=self.password)
@@ -54,26 +59,36 @@ class Glow:
 
     def authenticate(self) -> Dict[str, Any]:
         """Attempt to authenticate with Glowmarkt."""
+        if self.token and self.token_exp > int(time.time()):
+            LOGGER.debug("using existing glow token")
+            return {"token": self.token, "exp": self.token_exp}
+        
+        if self.token and self.token_exp <= int(time.time()):
+            LOGGER.debug("glow token expired")
+            raise ExpiredToken
+        
         url = f"{self.BASE_URL}/auth"
-        auth = {"username": self.username, "password": self.password}
+        auth = {"username": self.username, "password": self.password, "applicationId": self.app_id}
         headers = {
+            "User-Agent": "curl/7.64.1",
             "applicationId": self.app_id,
             "Accept": "application/json, */*",
             "Content-Type": "application/json",
         }
 
         try:
-            response = requests.post(url, json=auth, headers=headers, timeout=10)
+            response = requests.post(url, json=auth, headers=headers, timeout=30)
         except requests.Timeout as e:
             LOGGER.error("failed to authenticate - %s", e)
             raise CannotConnect
 
-        LOGGER.info("connected to glow")
+        LOGGER.debug("connected to glow")
         data = response.json()
 
         if data["valid"]:
-            LOGGER.info("got glow token")
+            LOGGER.debug("got glow token")
             self.token = data["token"]
+            self.token_exp = data["exp"]
             return data
         else:
             LOGGER.error("failed to authenticate - %s", data)
@@ -200,6 +215,8 @@ class CannotConnect(exceptions.HomeAssistantError):
 class InvalidAuth(exceptions.HomeAssistantError):
     """Error to indicate there is invalid auth."""
 
+class ExpiredToken(exceptions.HomeAssistantError):
+    """Error to indicate there is an expired token."""
 
 class NoCADAvailable(exceptions.HomeAssistantError):
     """Error to indicate no CADs were found."""

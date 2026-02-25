@@ -15,7 +15,7 @@ from homeassistant.exceptions import (
 )
 
 from .const import APP_ID, DOMAIN, GLOW_SESSION, LOGGER
-from .glow import CannotConnect, Glow, InvalidAuth, NoCADAvailable
+from .glow import CannotConnect, Glow, InvalidAuth, NoCADAvailable, ExpiredToken
 
 CONFIG_SCHEMA = vol.Schema({DOMAIN: vol.Schema({})}, extra=vol.ALLOW_EXTRA)
 
@@ -35,6 +35,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         APP_ID,
         entry.data["username"],
         entry.data["password"],
+        entry.data["token"],
+        entry.data["token_exp"],
     )
 
     try:
@@ -66,10 +68,12 @@ async def async_connect_or_timeout(hass: HomeAssistant, glow: Glow) -> bool:
 
             while not glow.broker_active:
                 await asyncio.sleep(1)
+    except ExpiredToken as err:
+        LOGGER.info("Glow token expired during connection attempt")
+        raise ConfigEntryAuthFailed from err
     except InvalidAuth as err:
         LOGGER.error("Couldn't login with the provided username/password")
         raise ConfigEntryAuthFailed from err
-
     except NoCADAvailable as err:
         LOGGER.error("Couldn't find any CAD devices (e.g. Glow Stick)")
         raise InvalidStateError from err

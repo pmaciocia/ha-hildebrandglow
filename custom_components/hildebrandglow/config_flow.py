@@ -22,6 +22,8 @@ def config_object(data: dict, glow: Dict[str, Any]) -> Dict[str, Any]:
         "name": glow["name"],
         "username": data["username"],
         "password": data["password"],
+        "token": glow["token"],
+        "token_exp": glow["exp"],
     }
 
 
@@ -66,3 +68,55 @@ class DomainConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         return self.async_show_form(
             step_id="user", data_schema=DATA_SCHEMA, errors=errors
         )
+
+    async def async_step_reauth(self, user_input: dict[str, Any] | None = None) -> config_entries.ConfigFlowResult:
+        """Handle re-authentication with the same credentials."""
+        errors = {}
+        if user_input is not None:
+            try:
+                self._abort_if_unique_id_mismatch()
+                info = await validate_input(self.hass, user_input)
+                return self.async_update_reload_and_abort(
+                    entry=self._get_reauth_entry(),
+                    data_updates=info,
+                )
+            except CannotConnect:
+                errors["base"] = "cannot_connect"
+            except InvalidAuth:
+                errors["base"] = "invalid_auth"
+            except Exception:  # pylint: disable=broad-except
+                _LOGGER.exception("Unexpected exception")
+                errors["base"] = "unknown"
+
+        return self.async_show_form(
+            step_id="reauth",
+            data_schema=DATA_SCHEMA,
+            errors=errors,
+        )
+    
+    async def async_step_reconfigure(self, user_input: dict[str, Any] | None = None) -> config_entries.ConfigFlowResult:
+        """Handle the reconfiguration step."""
+
+        errors = {}
+        if user_input is not None:
+            try:
+                self._abort_if_unique_id_mismatch()
+                info = await validate_input(self.hass, user_input)
+                return self.async_update_reload_and_abort(
+                    entry=self._get_reconfigure_entry(),
+                    data_updates=info,
+                )
+            except CannotConnect:
+                errors["base"] = "cannot_connect"
+            except InvalidAuth:
+                errors["base"] = "invalid_auth"
+            except Exception:  # pylint: disable=broad-except
+                _LOGGER.exception("Unexpected exception")
+                errors["base"] = "unknown"
+
+        return self.async_show_form(
+            step_id="reconfigure",
+            data_schema=DATA_SCHEMA,
+            errors=errors,
+        )
+    
