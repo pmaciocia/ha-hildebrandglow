@@ -30,9 +30,14 @@ class SmartMeter:
             meter.gas_consumption = ahc.current_day_consumption_delivered
 
         if data.electricity:
-            meter.power_consumption = (
-                data.electricity.historical_consumption.instantaneous_demand
-            )
+            if data.electricity.historical_consumption.instantaneous_demand:
+                meter.power_consumption = int(
+                    (data.electricity.historical_consumption.instantaneous_demand 
+                    * data.electricity.formatting.multiplier
+                    / data.electricity.formatting.divisor)
+                    * 1000 # kW -> W
+                ) 
+            
 
             if data.electricity.reading_information_set.current_summation_delivered:
                 meter.energy_consumption = (
