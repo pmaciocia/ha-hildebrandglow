@@ -5,6 +5,8 @@ import struct
 from enum import Enum
 from typing import Any, Dict, Optional
 
+# https://gist.github.com/ndfred/b373eeafc4f5b0870c1b8857041289a9
+# https://zigbeealliance.org/wp-content/uploads/2021/10/docs-07-5356-20-zse-zigbee-smart-energy-profile-specification.pdf page 219
 
 class Meter:
     """Information received regarding a single smart meter."""

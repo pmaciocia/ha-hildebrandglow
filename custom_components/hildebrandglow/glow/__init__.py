@@ -70,7 +70,6 @@ class Glow:
         url = f"{self.BASE_URL}/auth"
         auth = {"username": self.username, "password": self.password, "applicationId": self.app_id}
         headers = {
-            "User-Agent": "curl/7.64.1",
             "applicationId": self.app_id,
             "Accept": "application/json, */*",
             "Content-Type": "application/json",

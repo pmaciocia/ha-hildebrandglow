@@ -22,6 +22,18 @@ CONFIG_SCHEMA = vol.Schema({DOMAIN: vol.Schema({})}, extra=vol.ALLOW_EXTRA)
 PLATFORMS = (SENSOR_DOMAIN,)
 
 
+async def async_migrate_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> bool:
+    """Migrate old config entry to a newer version."""
+    LOGGER.debug("Migrating config entry from version %s", config_entry.version)
+
+    if config_entry.version == 1:
+        new_data = {**config_entry.data, "token": "", "token_exp": 0}
+        hass.config_entries.async_update_entry(config_entry, data=new_data, version=2)
+        LOGGER.info("Migration to version 2 successful")
+
+    return True
+
+
 async def async_setup(hass: HomeAssistant, config: Dict[str, Any]) -> bool:
     """Set up the Hildebrand Glow component."""
     hass.data[DOMAIN] = {}
