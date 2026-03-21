@@ -13,7 +13,7 @@ class SmartMeter:
 
     gas_consumption: float | None
 
-    power_consumption: int | None
+    power_consumption: float | None
     energy_consumption: float | None
 
     @staticmethod
@@ -31,13 +31,9 @@ class SmartMeter:
 
         if data.electricity:
             if data.electricity.historical_consumption.instantaneous_demand:
-                meter.power_consumption = int(
-                    (data.electricity.historical_consumption.instantaneous_demand 
-                    * data.electricity.formatting.multiplier
-                    / data.electricity.formatting.divisor)
-                    * 1000 # kW -> W
-                ) 
-            
+                meter.power_consumption = (
+                    data.electricity.historical_consumption.instantaneous_demand / 10
+                )
 
             if data.electricity.reading_information_set.current_summation_delivered:
                 meter.energy_consumption = (
